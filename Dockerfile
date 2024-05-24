@@ -2,6 +2,7 @@
 FROM rockylinux:8
 
 ENV container docker
+ENV USER root
 
 # Install necessary packages using dnf with --allowerasing option
 RUN dnf install -y epel-release && \
@@ -10,7 +11,7 @@ RUN dnf install -y epel-release && \
     dnf install -y xfce4-panel xfce4-session xfce4-settings xfdesktop xfwm4 \
                    tigervnc-server openssh-server passwd sudo xterm \
                    ksh csh redhat-lsb-core libXScrnSaver openssl-devel \
-                   compat-openssl10i mesa-libGLU libnsl apr-util glibc-devel && \
+                   compat-openssl10 mesa-libGLU libnsl apr-util glibc-devel && \
     dnf install -y https://rpmfind.net/linux/centos/7.9.2009/os/x86_64/Packages/compat-db-headers-4.7.25-28.el7.noarch.rpm && \
     dnf install -y https://rpmfind.net/linux/centos/7.9.2009/os/x86_64/Packages/compat-db47-4.7.25-28.el7.x86_64.rpm && \
     dnf clean all
@@ -32,10 +33,11 @@ RUN mkdir -p /root/.vnc && \
 
 # Expose the SSH port
 EXPOSE 22
+EXPOSE 3000
 
 # Copy installscape
 
-COPY IScape05.01-p001lnx86.t.Z /opt/iscape.tar.gz
+# COPY IScape05.01-p001lnx86.t.Z /opt/iscape.tar.gz
 #COPY unknown80httpbasic /unknown80httpbasic  
 #
 #RUN mkdir -p /opt/cadence/iscape && \
