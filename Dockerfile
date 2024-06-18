@@ -9,7 +9,7 @@ RUN dnf install -y epel-release && \
     dnf update -y --allowerasing && \
     dnf groupinstall -y "Server with GUI" --allowerasing && \
     dnf install -y xfce4-panel xfce4-session xfce4-settings xfdesktop xfwm4 \
-                   tigervnc-server openssh-server passwd sudo xterm \
+                   tigervnc-server novnc openssh-server passwd sudo xterm \
                    ksh csh redhat-lsb-core libXScrnSaver openssl-devel \
                    compat-openssl10 mesa-libGLU libnsl apr-util glibc-devel && \
     dnf install -y https://rpmfind.net/linux/centos/7.9.2009/os/x86_64/Packages/compat-db-headers-4.7.25-28.el7.noarch.rpm && \
@@ -35,6 +35,8 @@ RUN mkdir -p /root/.vnc && \
 EXPOSE 22
 EXPOSE 3000
 
+# License
+ENV LM_LICENSE_FILE 1717@lic06.ug.kth.se:27020@lic05.ug.kth.se:3000@lic08.ug.kth.se
 # Copy installscape
 
 # COPY IScape05.01-p001lnx86.t.Z /opt/iscape.tar.gz
