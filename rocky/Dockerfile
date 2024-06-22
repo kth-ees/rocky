@@ -1,0 +1,24 @@
+# Use the official Rocky Linux 8 image as the base image
+FROM rockylinux:8
+
+ENV container docker
+ENV USER root
+
+# Install necessary packages using dnf with --allowerasing option
+RUN dnf install -y epel-release && \
+    dnf update -y --allowerasing && \
+    dnf groupinstall -y "Server with GUI" --allowerasing && \
+    dnf install -y xfce4-panel xfce4-session xfce4-settings xfdesktop xfwm4 \
+                   tigervnc-server novnc openssh-server passwd sudo xterm \
+                   ksh csh redhat-lsb-core libXScrnSaver openssl-devel \
+                   motif motif-devel libpng12 \
+                   compat-openssl10 mesa-libGLU libnsl apr-util glibc-devel && \
+    dnf install -y https://rpmfind.net/linux/centos/7.9.2009/os/x86_64/Packages/compat-db-headers-4.7.25-28.el7.noarch.rpm && \
+    dnf install -y https://rpmfind.net/linux/centos/7.9.2009/os/x86_64/Packages/compat-db47-4.7.25-28.el7.x86_64.rpm && \
+    dnf clean all
+
+
+EXPOSE 22
+
+COPY run.sh /run.sh
+CMD ["/bin/sh", "/run.sh"]
