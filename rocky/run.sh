@@ -24,7 +24,7 @@ fi
 
 # Set up VNC server configuration
 mkdir -p /home/$STUDENTID/.vnc
-echo "$PASSWORD" | vncpasswd -f > /home/$STUDENTID/.vnc/passwd
+echo "irFtOvonFXCFMHCfoHmiY2sVfIOLH1E5" | vncpasswd -f > /home/$STUDENTID/.vnc/passwd
 chown -R $STUDENTID:$STUDENTID /home/$STUDENTID/.vnc
 chmod 600 /home/$STUDENTID/.vnc/passwd
 dbus-uuidgen | tee /var/lib/dbus/machine-id
@@ -34,7 +34,7 @@ chmod +x /home/$STUDENTID/.vnc/xstartup
 # start ssh and vnc
 /usr/sbin/sshd
 rm -rf /tmp/.X*
-su - $STUDENTID -c "vncserver :1 -geometry 1280x1024 -depth 24"
+su - $STUDENTID -c "vncserver :1 -geometry 1280x1024 -depth 24 -SecurityTypes None"
 rm /run/nologin
 tail -f /dev/null
 
