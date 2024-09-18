@@ -3,6 +3,8 @@ FROM rockylinux:8
 
 ENV container docker
 ENV USER root
+COPY compat-db47-4.7.25-28.el7.x86_64.rpm /tmp/compat-db47-4.7.25-28.el7.x86_64.rpm
+COPY compat-db-headers-4.7.25-28.el7.noarch.rpm /tmp/compat-db-headers-4.7.25-28.el7.noarch.rpm
 
 # Install necessary packages using dnf with --allowerasing option
 RUN dnf install -y epel-release && \
@@ -13,8 +15,8 @@ RUN dnf install -y epel-release && \
                    ksh csh redhat-lsb-core libXScrnSaver openssl-devel \
                    motif motif-devel libpng12 environment-modules \
                    compat-openssl10 mesa-libGLU libnsl apr-util glibc-devel && \
-    dnf install -y https://rpmfind.net/linux/centos/7.9.2009/os/x86_64/Packages/compat-db-headers-4.7.25-28.el7.noarch.rpm && \
-    dnf install -y https://rpmfind.net/linux/centos/7.9.2009/os/x86_64/Packages/compat-db47-4.7.25-28.el7.x86_64.rpm && \
+    dnf install -y /tmp/compat-db47-4.7.25-28.el7.x86_64.rpm && \
+    dnf install -y /tmp/compat-db-headers-4.7.25-28.el7.noarch.rpm && \
     dnf clean all
 
 
