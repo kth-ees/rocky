@@ -13,10 +13,10 @@ RUN dnf install -y epel-release && \
     dnf install -y xfce4-panel xfce4-session xfce4-settings xfdesktop xfwm4 \
                    tigervnc-server novnc openssh-server passwd sudo xterm \
                    ksh csh redhat-lsb-core libXScrnSaver openssl-devel \
-                   motif motif-devel libpng12 environment-modules \
+                   motif motif-devel libpng12 environment-modules git zsh tmux \
                    compat-openssl10 mesa-libGLU libnsl apr-util glibc-devel && \
-    dnf install -y /tmp/compat-db47-4.7.25-28.el7.x86_64.rpm && \
     dnf install -y /tmp/compat-db-headers-4.7.25-28.el7.noarch.rpm && \
+    dnf install -y /tmp/compat-db47-4.7.25-28.el7.x86_64.rpm && \
     dnf clean all
 
 
