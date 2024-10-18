@@ -6,20 +6,11 @@ PORT_MAP="port_map.csv"
 # deployment variables
 PASSWORD="kth-rocky" # in practice this is never used
 MODULEPATH="/opt/tools/modules"
-CONTAINER_IMAGE="kth-rocky:2024.5"
+CONTAINER_IMAGE="kth-rocky:2024.6"
 TOOL_NFS_DIR="/ee/tools/"
 TOOL_CONTAINER_DIR="/opt/tools"
 PDK_NFS_DIR="/ee/pdk/.symlinks"
 PDK_CONTAINER_DIR="/opt/pdk"
-
-# parse flags
-# -n --name-prefix [mandatory]
-# -l --user-list [default: user_list.csv]
-# -p --port-map [default: port_map.csv]
-# -i --image [default: kth-rocky:2024.5]
-# -d --home-dirs [mandatory]
-# -t --tool-dir [default: /opt/tools]
-# -k --pdks [list of pdk, available ones: tsmc90, tsmc28, kista, sky130, xfab]
 
 # print help message
 function print_help() {
@@ -32,6 +23,8 @@ function print_help() {
     echo "  -d, --home-dirs            Directory containing home directories"
     echo "  -k, --pdks                 List of PDKs to mount. Available PDKs: tsmc90, tsmc28, kista, sky130, xfab"
 }
+
+# Parse flags
 while [[ $# -gt 0 ]]
 do
     case $1 in
@@ -72,52 +65,78 @@ do
     esac
 done
 
-# check if mandatory flags are set
-if [ -z ${HOME_DIRS} ]; then
+# Check if mandatory flags are set
+if [ -z "${HOME_DIRS}" ]; then
     echo "Please provide home directories for the students"
     print_help
     return 1
 fi
-if [ -z ${CONTAINER_PREFIX} ]; then
+if [ -z "${CONTAINER_PREFIX}" ]; then
     echo "Please provide container name prefix"
     print_help
     return 1
 fi
-# check if PDK is a list separated by comma, each element should be a valid pdk
-# valid pdks: tsmc90, tsmc28, kista, sky130, xfab
-for pdk in $(echo $PDK_LIST | sed "s/,/ /g")
-do
-    if [ $pdk != "tsmc90" ] && [ $pdk != "tsmc28" ] && [ $pdk != "kista" ] && [ $pdk != "sky130" ] && [ $pdk != "xfab" ]; then
+
+# Validate PDK list
+valid_pdks="tsmc90 tsmc28 kista sky130 xfab gf22"
+for pdk in $(echo "$PDK_LIST" | sed "s/,/ /g"); do
+    if [[ ! $valid_pdks =~ $pdk ]]; then
         echo "Invalid PDK: $pdk"
         return 1
     fi
 done
 
-# create PDK mount argument
+# Trim all directory variables to remove potential spaces
+PDK_NFS_DIR=$(echo "${PDK_NFS_DIR}" | sed 's/^ *//; s/ *$//')
+PDK_CONTAINER_DIR=$(echo "${PDK_CONTAINER_DIR}" | sed 's/^ *//; s/ *$//')
+TOOL_NFS_DIR=$(echo "${TOOL_NFS_DIR}" | sed 's/^ *//; s/ *$//')
+TOOL_CONTAINER_DIR=$(echo "${TOOL_CONTAINER_DIR}" | sed 's/^ *//; s/ *$//')
+HOME_DIRS=$(echo "${HOME_DIRS}" | sed 's/^ *//; s/ *$//')
+
+# Create a single string to store volume mounts instead of using an array
 PDK_MOUNTS=""
-for pdk in $(echo $PDK_LIST | sed "s/,/ /g")
-do
-    PDK_MOUNTS="${PDK_MOUNTS} -v ${PDK_NFS_DIR}/${pdk}:${PDK_CONTAINER_DIR}/${pdk}:ro"
+
+# Build the PDK_MOUNTS string by iterating through the comma-separated list in PDK_LIST
+for pdk in $(echo "$PDK_LIST" | sed "s/,/ /g"); do
+    host_path=$(echo "${PDK_NFS_DIR}/${pdk}" | sed 's/^ *//; s/ *$//')
+    container_path=$(echo "${PDK_CONTAINER_DIR}/${pdk}" | sed 's/^ *//; s/ *$//')
+
+    # Append each mount to the string, ensuring no leading or trailing spaces
+    PDK_MOUNTS="${PDK_MOUNTS} -v ${host_path}:${container_path}:ro"
 done
-# read csv file
-while IFS=, read -r username key
-do
-    echo "Deploying container for $username"
-    docker run -d --name ${CONTAINER_PREFIX}${username} \
+
+# Read the student list CSV and deploy containers
+while IFS=, read -r username key port; do
+    # Check if port is empty, set default port if not specified
+    if [ -z ${port} ]; then
+        PORT=22
+    else
+        PORT=${port}:22
+    fi
+
+    # Construct the complete Docker command as a single string
+    docker_cmd="docker run -d --name ${CONTAINER_PREFIX}${username} \
         --restart unless-stopped \
         -e STUDENTID=${username} \
         -e PASSWORD=${PASSWORD} \
-            -e SSH_KEY="${key}" \
+        -e SSH_KEY=\"${key}\" \
         -e MODULEPATH=${MODULEPATH} \
-        -p 22 \
-        -v ${HOME_DIRS}${username}:/home/${username} \
+        -p ${PORT} \
+        -v ${HOME_DIRS}/${username}:/home/${username} \
         -v ${TOOL_NFS_DIR}:${TOOL_CONTAINER_DIR}:ro \
         ${PDK_MOUNTS} \
-        ${CONTAINER_IMAGE}
+        ${CONTAINER_IMAGE}"
 
-    # get the port number
-    port=$(docker port ${CONTAINER_PREFIX}${username} 22 | cut -d ':' -f 2)
-    echo "${username},${port}" >> ${PORT_MAP}
-done < ${STUDENT_LIST}
+    # Print and run the Docker command
+    # echo "Running command: $docker_cmd"
+    eval $docker_cmd
 
-
+    # Check if container was created successfully and get its port
+    if [ $? -eq 0 ]; then
+        port=$(docker port "${CONTAINER_PREFIX}${username}" 22 | cut -d ':' -f 2)
+        echo "${username},${port}" >> "${PORT_MAP}"
+        echo "Deployed container for ${username} on port ${port}"
+    else
+        echo "Failed to deploy container for ${username}"
+    fi
+done < "${STUDENT_LIST}"
