@@ -1,4 +1,13 @@
-Once you have submitted your SSH key, consult the username and port that you have been assigned. It will be published in **Files** once the accounts are created.
+The connections to the server are established using SSH tunnels and then routing the VNC traffic through the tunnel. This is done to ensure that the connection is secure 
+and that the VNC traffic is encrypted.
+
+To connect to the servers, you need to have an SSH key. If you don't have one, follow the instructions [here](https://docs.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh).
+
+Submit your **public** SSH key to the course assistant and wait for the accounts to be created.
+
+**Make sure you don't submit your private key or the key sianture or any other sensitive information. Only the public key is needed.**
+
+Once your account is created, consult the username and port that you have been assigned. It will be published in **Files**  or sent to you once the accounts are created.
 
 To access the servers, you need an SSH and a VNC client. We recommend [TigerVNC](https://tigervnc.org/). Follow the installation according to your OS. You don't need to install the server; only the VNC viewer is sufficient. SSH clients should come with most of the modern OS already; if you use an old Windows version, follow [this](https://learn.microsoft.com/en-us/windows/terminal/tutorials/ssh) instructions.
 
@@ -8,7 +17,8 @@ To connect, first establish a tunnel to your account and port. The account usern
 ssh -L 5901:localhost:5901 -p PORT USERNAME@ekurs1.eecs.kth.se
 ```
 
-Replace **USERNAME** and **PORT** accordingly.
+Replace **USERNAME** and **PORT** accordingly. Note that the server can be different, depending on the course or project
+you are working on.
 
 After the tunnel is established, open VNC viewer and connect to `localhost:1`
 
