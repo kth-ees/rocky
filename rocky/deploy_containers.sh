@@ -75,6 +75,14 @@ if [ -z "${CONTAINER_PREFIX}" ]; then
     echo "Please provide container name prefix"
     print_help
     return 1
+else
+    # check that the prefix is [a-z]{2,3}[0-9]{4}_[ht|vt][0-9]{2} or \w*_research
+    if [[ ! $CONTAINER_PREFIX =~ ^[a-z]{2,3}[0-9]{4}(ht|vt)[0-9]{2}$ ]] && [[ ! $CONTAINER_PREFIX =~ ^\w*_research$ ]]; then
+        echo "Invalid container name prefix"
+        echo "The prefix should be in the format [a-z]{2,3}[0-9]{4}(ht|vt)[0-9]{2} or \w*_research"
+        return 1
+    fi
+    CONTAINER_PREFIX="${CONTAINER_PREFIX}-"
 fi
 
 # Validate PDK list
