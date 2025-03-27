@@ -11,6 +11,8 @@ TOOL_NFS_DIR="/ee/tools/"
 TOOL_CONTAINER_DIR="/opt/tools"
 PDK_NFS_DIR="/ee/pdk/.symlinks"
 PDK_CONTAINER_DIR="/opt/pdk"
+SHARE_NFS_DIR="/ee/"
+SHARE_CONTAINER_DIR="/media/shares"
 
 # print help message
 function print_help() {
@@ -22,6 +24,7 @@ function print_help() {
     echo "  -i, --image                Container image to deploy"
     echo "  -d, --home-dirs            Directory containing home directories"
     echo "  -k, --pdks                 List of PDKs to mount. Available PDKs: tsmc90, tsmc28, kista, sky130, xfab"
+    echo "  -s, --shares               List of shared directories to mount"
 }
 
 # Parse flags
@@ -62,6 +65,11 @@ do
             shift
             shift
             ;;
+        -s|--shares)
+            SHARE_LIST=$2
+            shift
+            shift
+            ;;
     esac
 done
 
@@ -76,13 +84,17 @@ if [ -z "${CONTAINER_PREFIX}" ]; then
     print_help
     return 1
 else
-    # check that the prefix is [a-z]{2,3}[0-9]{4}_[ht|vt][0-9]{2} or \w*_research
-    if [[ ! $CONTAINER_PREFIX =~ ^[a-z]{2,3}[0-9]{4}(ht|vt)[0-9]{2}$ ]] && [[ ! $CONTAINER_PREFIX =~ ^\w*_research$ ]]; then
-        echo "Invalid container name prefix"
-        echo "The prefix should be in the format [a-z]{2,3}[0-9]{4}(ht|vt)[0-9]{2} or \w*_research"
-        return 1
+    if [[ $CONTAINER_PREFIX =~ ^[a-z]{2,3}[0-9]{4}(ht|vt)[0-9]{2}$ ]]; then
+      ACCOUNT_TYPE="student"
+      COURSE_CODE=${CONTAINER_PREFIX}
+    elif [[ $CONTAINER_PREFIX =~ ^[a-zA-Z0-9_]*_research$ ]]; then
+      ACCOUNT_TYPE="research"
+    else
+      echo "Invalid container name prefix"
+      echo "The prefix should be in the format [a-z]{2,3}[0-9]{4}(ht|vt)[0-9]{2} or [a-zA-Z0-9_]*_research"
+      return 1
     fi
-    CONTAINER_PREFIX="${CONTAINER_PREFIX}-"
+    CONTAINER_PREFIX="${CONTAINER_PREFIX}_"
 fi
 
 # Validate PDK list
@@ -113,6 +125,21 @@ for pdk in $(echo "$PDK_LIST" | sed "s/,/ /g"); do
     PDK_MOUNTS="${PDK_MOUNTS} -v ${host_path}:${container_path}:ro"
 done
 
+# Build the SHARE_MOUNTS string by iterating through the comma-separated list in SHARE_LIST
+for share in $(echo "$SHARE_LIST" | sed "s/,/ /g"); do
+    # if ACCOUNT_TYPE is student, then the share is in the format course_code/share_name
+    # if [ $ACCOUNT_TYPE == "student" ]; then
+    if [[ $ACCOUNT_TYPE == "student" ]]; then
+        host_path=$(echo "${SHARE_NFS_DIR}/${COURSE_CODE}/shares/${share}" | sed 's/^ *//; s/ *$//')
+    elif [[ $ACCOUNT_TYPE == "research" ]]; then
+        host_path=$(echo "${SHARE_NFS_DIR}/research/shares/${share}" | sed 's/^ *//; s/ *$//')
+    fi
+    container_path=$(echo "${SHARE_CONTAINER_DIR}/${share}" | sed 's/^ *//; s/ *$//')
+
+    # Append each mount to the string, ensuring no leading or trailing spaces
+    SHARE_MOUNTS="${SHARE_MOUNTS} -v ${host_path}:${container_path}:ro"
+done
+
 # Read the student list CSV and deploy containers
 while IFS=, read -r username key port; do
     # Check if port is empty, set default port if not specified
@@ -133,6 +160,7 @@ while IFS=, read -r username key port; do
         -v ${HOME_DIRS}/${username}:/home/${username} \
         -v ${TOOL_NFS_DIR}:${TOOL_CONTAINER_DIR}:ro \
         ${PDK_MOUNTS} \
+        ${SHARE_MOUNTS} \
         ${CONTAINER_IMAGE}"
 
     # Print and run the Docker command
