@@ -10,7 +10,7 @@ COPY compat-db-headers-4.7.25-28.el7.noarch.rpm /tmp/compat-db-headers-4.7.25-28
 RUN dnf install -y epel-release && \
     dnf update -y --allowerasing && \
     dnf groupinstall -y "Server with GUI" --allowerasing && \
-    dnf install -y xfce4-panel xfce4-session xfce4-settings xfdesktop xfwm4 \
+    dnf install -y xfce4-panel xfce4-session xfce4-settings xfce4-appfinder xfdesktop xfwm4 \
                    tigervnc-server novnc openssh-server passwd sudo xterm xorg-x11-server-Xvfb \
                    ksh csh redhat-lsb-core libXScrnSaver openssl-devel libicu50 mc qt5-qtbase-gui \
                    libxcb-devel xcb-util-wm xcb-util-image xcb-util-keysyms xcb-util-renderutil \
