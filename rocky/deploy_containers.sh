@@ -14,7 +14,8 @@ PDK_CONTAINER_DIR="/opt/pdk"
 SHARE_NFS_DIR="/ee/"
 SHARE_CONTAINER_DIR="/media/shares"
 
-valid_pdks="tsmc90 tsmc28 kista sky130 xfab gf22 gfip"
+valid_pdks="$(ls ${PDK_NFS_DIR} | sed 's/ /_/g' | tr '\n' ' ')"
+valid_shares="$(ls ${SHARE_NFS_DIR} | sed 's/ /_/g' | tr '\n' ' ')"
 # print help message
 function print_help() {
     echo "Usage: deploy_containers.sh [OPTIONS]"
@@ -25,7 +26,7 @@ function print_help() {
     echo "  -i, --image                Container image to deploy"
     echo "  -d, --home-dirs            Directory containing home directories"
     echo "  -k, --pdks                 List of PDKs to mount. Available PDKs: $valid_pdks"
-    echo "  -s, --shares               List of shared directories to mount"
+    echo "  -s, --shares               List of shared directories to mount. Available shares: $valid_shares"
 }
 
 # Parse flags
@@ -157,8 +158,8 @@ while IFS=, read -r username key port; do
         -e SSH_KEY=\"${key}\" \
         -e MODULEPATH=${MODULEPATH} \
         -p ${PORT} \
-	-v /sys:/sys:ro \
-	-v /etc/sshd:/etc/sshd:ro \
+        -v /sys:/sys:ro \
+        -v /etc/sshd:/etc/sshd:ro \
         -v ${HOME_DIRS}/${username}:/home/${username} \
         -v ${TOOL_NFS_DIR}:${TOOL_CONTAINER_DIR}:ro \
         ${PDK_MOUNTS} \
