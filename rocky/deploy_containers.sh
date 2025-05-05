@@ -157,6 +157,8 @@ while IFS=, read -r username key port; do
         -e PASSWORD=${PASSWORD} \
         -e SSH_KEY=\"${key}\" \
         -e MODULEPATH=${MODULEPATH} \
+	-e PDK_CONTAINER_DIR=${PDK_CONTAINER_DIR} \
+	-e TOOL_CONTAINER_DIR=${TOOL_CONTAINER_DIR} \
         -p ${PORT} \
         -v /sys:/sys:ro \
         -v /etc/sshd:/etc/sshd:ro \
