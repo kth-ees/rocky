@@ -39,7 +39,7 @@ module add questa
 vsim&
 ```
 
-You can add the `module use` line in your `.bashrc` so you won't have to run it every time.
+You can add the `module use` line in your `.zshrc` so you won't have to run it every time.
 
 When using VNC, **do not logout**. This will cause the VNC server to crash. If you accidentally log out, run the following commands to restart the VNC server:
 
