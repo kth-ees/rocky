@@ -24,13 +24,13 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ghcr.io/silagokth/kth-rocky
+        images: ghcr.io/silagokth/rocky
     - name: Build and push Docker image
       id: push
       uses: docker/build-push-action@v6
       with:
-        context: ./rocky
-        file: ./rocky/Dockerfile
+        context: ./docker
+        file: ./docker/Dockerfile
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}        
