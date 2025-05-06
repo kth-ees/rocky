@@ -14,7 +14,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - run: cd rocky
-    - run: pwd
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag kth-rocky:$(date +%s)
+      run: docker build ./rocky --tag kth-rocky:$(date +%s)
+    
