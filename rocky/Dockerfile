@@ -1,8 +1,8 @@
 # Use the official Rocky Linux 8 image as the base image
 FROM rockylinux:8
 
-ENV container docker
-ENV USER root
+ENV container=docker
+ENV USER=root
 COPY compat-db47-4.7.25-28.el7.x86_64.rpm /tmp/compat-db47-4.7.25-28.el7.x86_64.rpm
 COPY compat-db-headers-4.7.25-28.el7.noarch.rpm /tmp/compat-db-headers-4.7.25-28.el7.noarch.rpm
 

@@ -116,6 +116,7 @@ HOME_DIRS=$(echo "${HOME_DIRS}" | sed 's/^ *//; s/ *$//')
 
 # Create a single string to store volume mounts instead of using an array
 PDK_MOUNTS=""
+SHARE_MOUNTS=""
 
 # Build the PDK_MOUNTS string by iterating through the comma-separated list in PDK_LIST
 for pdk in $(echo "$PDK_LIST" | sed "s/,/ /g"); do
@@ -130,11 +131,7 @@ done
 for share in $(echo "$SHARE_LIST" | sed "s/,/ /g"); do
     # if ACCOUNT_TYPE is student, then the share is in the format course_code/share_name
     # if [ $ACCOUNT_TYPE == "student" ]; then
-    if [[ $ACCOUNT_TYPE == "student" ]]; then
-        host_path=$(echo "${SHARE_NFS_DIR}/${COURSE_CODE}/shares/${share}" | sed 's/^ *//; s/ *$//')
-    elif [[ $ACCOUNT_TYPE == "research" ]]; then
-        host_path=$(echo "${SHARE_NFS_DIR}/research/shares/${share}" | sed 's/^ *//; s/ *$//')
-    fi
+    host_path=$(echo ${HOME_DIRS}/shares/${share} | sed 's/^ *//; s/ *$//')
     container_path=$(echo "${SHARE_CONTAINER_DIR}/${share}" | sed 's/^ *//; s/ *$//')
 
     # Append each mount to the string, ensuring no leading or trailing spaces
@@ -153,6 +150,7 @@ while IFS=, read -r username key port; do
     # Construct the complete Docker command as a single string
     docker_cmd="docker run -d --name ${CONTAINER_PREFIX}${username} \
         --restart unless-stopped \
+	--hostname ${CONTAINER_PREFIX}${username} \
         -e STUDENTID=${username} \
         -e PASSWORD=${PASSWORD} \
         -e SSH_KEY=\"${key}\" \
