@@ -24,7 +24,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ghcr.io/silagokth/rocky
+        images: ghcr.io/kth-ees/rocky
     - name: Build and push Docker image
       id: push
       uses: docker/build-push-action@v6
