@@ -160,6 +160,7 @@ while IFS=, read -r username key port; do
         -p ${PORT} \
         -v /sys:/sys:ro \
         -v /etc/sshd:/etc/sshd:ro \
+	-v /etc/ssh:/etc/ssh:ro \
         -v ${HOME_DIRS}/${username}:/home/${username} \
         -v ${TOOL_NFS_DIR}:${TOOL_CONTAINER_DIR}:ro \
         ${PDK_MOUNTS} \
