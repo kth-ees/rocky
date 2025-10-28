@@ -150,17 +150,18 @@ while IFS=, read -r username key port; do
     # Construct the complete Docker command as a single string
     docker_cmd="docker run -d --name ${CONTAINER_PREFIX}${username} \
         --restart unless-stopped \
-	--hostname ${CONTAINER_PREFIX}${username} \
+        --hostname ${CONTAINER_PREFIX}${username} \
         -e STUDENTID=${username} \
         -e PASSWORD=${PASSWORD} \
         -e SSH_KEY=\"${key}\" \
         -e MODULEPATH=${MODULEPATH} \
-	-e PDK_CONTAINER_DIR=${PDK_CONTAINER_DIR} \
-	-e TOOL_CONTAINER_DIR=${TOOL_CONTAINER_DIR} \
+        -e PDK_CONTAINER_DIR=${PDK_CONTAINER_DIR} \
+        -e TOOL_CONTAINER_DIR=${TOOL_CONTAINER_DIR} \
         -p ${PORT} \
         -v /sys:/sys:ro \
-        -v /etc/sshd:/etc/sshd:ro \
-	-v /etc/ssh:/etc/ssh:ro \
+        -v /etc/ssh/ssh_host_rsa_key:/etc/ssh/ssh_host_rsa_key:ro \
+        -v /etc/ssh/ssh_host_ecdsa_key:/etc/ssh/ssh_host_ecdsa_key:ro \
+        -v /etc/ssh/ssh_host_ed25519_key:/etc/ssh/ssh_host_ed25519_key:ro \
         -v ${HOME_DIRS}/${username}:/home/${username} \
         -v ${TOOL_NFS_DIR}:${TOOL_CONTAINER_DIR}:ro \
         ${PDK_MOUNTS} \
