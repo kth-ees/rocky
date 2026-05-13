@@ -2,8 +2,8 @@
 mkdir -p /var/run/sshd
 # ssh-keygen -A
 echo 'root:3CEPnGrebYcHGnbHiDBxEJIjRiyQ4UKf' | chpasswd
-#sed -i 's/^#PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
-#sed -i 's/^#PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
+sed -i 's/^#PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
+sed -i 's/^#PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
 
 # create user from environment variables
 if [ -n "$STUDENTID" ] && [ -n "$PASSWORD" ]; then
