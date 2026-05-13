@@ -16,6 +16,7 @@ RUN dnf install -y epel-release && \
                    libxcb-devel xcb-util-wm xcb-util-image xcb-util-keysyms xcb-util-renderutil \
                    motif motif-devel libpng12 environment-modules git zsh tmux \
                    compat-openssl10 mesa-libGLU libnsl apr-util glibc-devel glibc-devel.i686 && \
+                   xorg-x11-fonts-100dpi xorg-x11-fonts-75dpi \
     dnf install -y /tmp/compat-db-headers-4.7.25-28.el7.noarch.rpm && \
     dnf install -y /tmp/compat-db47-4.7.25-28.el7.x86_64.rpm && \
     dnf clean all
